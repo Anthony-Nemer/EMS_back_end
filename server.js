@@ -47,7 +47,6 @@ app.get('/initial/login/:email', (req, res) => {
 });
 
 
-
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -105,17 +104,6 @@ app.post('/login', async (req, res) => {
 
 
 
-app.get('/fetch-services', (req, res) =>{
-    var query = `SELECT id, service_name FROM services`;
-
-    db.query(query, (err, result)=>{
-        if(err) {
-            console.log('Error fetching services: '+err);
-            res.send(err);
-        }
-        res.send(result);
-    })
-})
 
 
 app.post('/register', async (req, res) => {
@@ -149,5 +137,47 @@ app.post('/register', async (req, res) => {
                 return res.status(200).send({ message: 'Register successful', userInfo });
             });
         });
+    });
+});
+
+
+app.get('/fetch-cuisines', (req, res) => {
+    var query = `SELECT * FROM cuisines`;
+
+    db.query(query, [], (err, results) => {
+        if (err) {
+            console.error("Error fetching cuisines:", err);
+            res.status(500).send({ error: "Database query failed" });
+        } else {
+            res.status(200).json(results); 
+        }
+    });
+});
+
+
+
+app.get('/fetch-venues', (req, res) => {
+    const query = `SELECT id, name, capacity, price FROM venue WHERE isAvailable = '1'`;
+
+    db.query(query, [], (err, results) => {
+        if (err) {
+            console.error("Error fetching venues:", err);
+            res.status(500).send({ error: "Database query failed" });
+        } else {
+            res.status(200).json(results); 
+        }
+    });
+});
+
+app.get('/fetch-services', (req, res) => {
+    const query = `SELECT * FROM services`;
+
+    db.query(query, [], (err, results) => {
+        if (err) {
+            console.error("Error fetching services:", err);
+            res.status(500).send({ error: "Database query failed" });
+        } else {
+            res.status(200).json(results); 
+        }
     });
 });
