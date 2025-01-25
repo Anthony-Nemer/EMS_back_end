@@ -181,3 +181,46 @@ app.get('/fetch-services', (req, res) => {
         }
     });
 });
+
+
+
+app.post('/book-event', async (req, res) => {
+    const {
+      user_id,
+      event_title,
+      event_date,
+      duration,
+      venue_id,
+      attendance_number,
+      persons_per_table,
+      number_of_tables,
+      cuisine_id,
+      services
+    } = req.body;
+  
+    try {
+      await db.promise().beginTransaction();
+        const [eventResult] = await db.promise().query(
+        `INSERT INTO events (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id]
+      );
+  
+      const event_id = eventResult.insertId;
+  
+      const serviceInsertPromises = services.map((service_id) => {
+        return db.promise().query(
+          `INSERT INTO eventservices (event_id, service_id) VALUES (?, ?)`,
+          [event_id, service_id]
+        );
+      });
+        await Promise.all(serviceInsertPromises);
+        await db.promise().commit();
+  
+      res.status(200).json({ message: 'Event booked successfully', event_id });
+    } catch (error) {
+      await db.promise().rollback();
+      console.error("Error booking event:", error);
+      res.status(500).json({ error: 'Failed to book event' });
+    }
+  });
