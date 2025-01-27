@@ -224,3 +224,34 @@ app.post('/book-event', async (req, res) => {
       res.status(500).json({ error: 'Failed to book event' });
     }
   });
+
+
+  app.post('/feedback',async(req,res)=>{
+    const{
+        user_id,
+        feedback,
+        rating,
+        services,
+        suggestions
+    }=req.body;
+
+    console.log("Received data:".req.body)
+
+    if(!user_id || !feedback || !rating || !services){
+        return res.status(400).send({
+            error:"All fields are required."
+        });
+    }
+
+    const query='INSERT INTO feedback (user_id, feedback,rating,services,suggestions) VALUES (?,?,?,?,?)';
+
+    db.query(query, [user_id,feedback,rating,services,suggestions],(err,results)=>{
+        if(err){
+            console.error("Error inserting feedback:",err);
+            return res.status(500).send({error:"Database query failed."});
+        }
+        res.status(200).send({message:"Feedback submitted successfully!"});
+    });
+                 
+});
+
