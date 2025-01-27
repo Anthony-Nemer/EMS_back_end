@@ -201,9 +201,9 @@ app.post('/book-event', async (req, res) => {
     try {
       await db.promise().beginTransaction();
         const [eventResult] = await db.promise().query(
-        `INSERT INTO events (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id]
+        `INSERT INTO events (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, status) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, 'Pending Approval']
       );
   
       const event_id = eventResult.insertId;
@@ -255,3 +255,39 @@ app.post('/book-event', async (req, res) => {
                  
 });
 
+
+
+app.get('/get-events', (req, res) => {
+    const userId = req.query.userId;
+
+    const query = `
+        SELECT 
+            e.event_id,
+            e.event_title,
+            e.event_date,
+            e.status,
+            e.duration,
+            e.venue_id,
+            v.name AS venue_name,
+            e.attendance_number,
+            e.persons_per_table,
+            e.number_of_tables,
+            e.cuisine_id,
+            c.cuisine AS cuisine_name
+        FROM 
+            events AS e
+        JOIN 
+            venue AS v ON v.id = e.venue_id
+        JOIN 
+            cuisines AS c ON c.id = e.cuisine_id
+        WHERE 
+            e.user_id = ?`;
+
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching events data:', err);
+            return res.status(500).send({ error: "Database query failed" });
+        }
+        res.status(200).json(results);
+    });
+});
