@@ -238,6 +238,7 @@ app.post('/book-event', async (req, res) => {
         cuisine_id,
         selectedServices
     } = req.body;
+<<<<<<< HEAD
 
     console.log("Received data:", req.body);
 
@@ -289,6 +290,53 @@ app.post('/feedback',async(req,res)=>{
             error:"All fields are required."
         });
     }
+=======
+  
+    try {
+      await db.promise().beginTransaction();
+        const [eventResult] = await db.promise().query(
+        `INSERT INTO events (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, status) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, 'Pending Approval']
+      );
+  
+      const event_id = eventResult.insertId;
+  
+      const serviceInsertPromises = services.map((service_id) => {
+        return db.promise().query(
+          `INSERT INTO eventservices (event_id, service_id) VALUES (?, ?)`,
+          [event_id, service_id]
+        );
+      });
+        await Promise.all(serviceInsertPromises);
+        await db.promise().commit();
+  
+      res.status(200).json({ message: 'Event booked successfully', event_id });
+    } catch (error) {
+      await db.promise().rollback();
+      console.error("Error booking event:", error);
+      res.status(500).json({ error: 'Failed to book event' });
+    }
+  });
+
+
+  app.post('/feedback',async(req,res)=>{
+    const{
+        user_id,
+        feedback,
+        rating,
+        services,
+        suggestions
+    }=req.body;
+
+    console.log("Received data:".req.body)
+
+    if(!user_id || !feedback || !rating || !services){
+        return res.status(400).send({
+            error:"All fields are required."
+        });
+    }
+>>>>>>> d1362e9434c35dce66c8457a747307396c713058
 
     const query='INSERT INTO feedback (user_id, feedback,rating,services,suggestions) VALUES (?,?,?,?,?)';
 
@@ -300,4 +348,45 @@ app.post('/feedback',async(req,res)=>{
         res.status(200).send({message:"Feedback submitted successfully!"});
     });
                  
+<<<<<<< HEAD
 });
+=======
+});
+
+
+
+app.get('/get-events', (req, res) => {
+    const userId = req.query.userId;
+
+    const query = `
+        SELECT 
+            e.event_id,
+            e.event_title,
+            e.event_date,
+            e.status,
+            e.duration,
+            e.venue_id,
+            v.name AS venue_name,
+            e.attendance_number,
+            e.persons_per_table,
+            e.number_of_tables,
+            e.cuisine_id,
+            c.cuisine AS cuisine_name
+        FROM 
+            events AS e
+        JOIN 
+            venue AS v ON v.id = e.venue_id
+        JOIN 
+            cuisines AS c ON c.id = e.cuisine_id
+        WHERE 
+            e.user_id = ?`;
+
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching events data:', err);
+            return res.status(500).send({ error: "Database query failed" });
+        }
+        res.status(200).json(results);
+    });
+});
+>>>>>>> d1362e9434c35dce66c8457a747307396c713058
