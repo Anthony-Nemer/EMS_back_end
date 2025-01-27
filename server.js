@@ -12,7 +12,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: 'localhost', 
   user: 'root',      
-  password: 'jennyfakir@2004',      
+  password: 'nemeranthony2004@',      
   database: 'ems_db' 
 });
 
@@ -238,11 +238,10 @@ app.post('/book-event', async (req, res) => {
         cuisine_id,
         selectedServices
     } = req.body;
-<<<<<<< HEAD
 
     console.log("Received data:", req.body);
 
-    const eventQuery = `INSERT INTO eventss 
+    const eventQuery = `INSERT INTO events
     (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -290,7 +289,6 @@ app.post('/feedback',async(req,res)=>{
             error:"All fields are required."
         });
     }
-=======
   
     try {
       await db.promise().beginTransaction();
@@ -336,8 +334,6 @@ app.post('/feedback',async(req,res)=>{
             error:"All fields are required."
         });
     }
->>>>>>> d1362e9434c35dce66c8457a747307396c713058
-
     const query='INSERT INTO feedback (user_id, feedback,rating,services,suggestions) VALUES (?,?,?,?,?)';
 
     db.query(query, [user_id,feedback,rating,services,suggestions],(err,results)=>{
@@ -348,9 +344,6 @@ app.post('/feedback',async(req,res)=>{
         res.status(200).send({message:"Feedback submitted successfully!"});
     });
                  
-<<<<<<< HEAD
-});
-=======
 });
 
 
@@ -389,4 +382,3 @@ app.get('/get-events', (req, res) => {
         res.status(200).json(results);
     });
 });
->>>>>>> d1362e9434c35dce66c8457a747307396c713058
