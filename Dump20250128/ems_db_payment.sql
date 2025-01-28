@@ -16,42 +16,32 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `events`
+-- Table structure for table `payment`
 --
 
-DROP TABLE IF EXISTS `events`;
+DROP TABLE IF EXISTS `payment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `events` (
-  `event_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `event_title` varchar(255) NOT NULL,
-  `event_date` date NOT NULL,
-  `duration` varchar(50) DEFAULT NULL,
-  `venue_id` int DEFAULT NULL,
-  `attendance_number` int DEFAULT NULL,
-  `persons_per_table` int DEFAULT NULL,
-  `number_of_tables` int DEFAULT NULL,
-  `cuisine_id` int DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`event_id`),
-  KEY `user_id` (`user_id`),
-  KEY `venue_id` (`venue_id`),
-  KEY `cuisine_id` (`cuisine_id`),
-  CONSTRAINT `events_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `events_ibfk_2` FOREIGN KEY (`venue_id`) REFERENCES `venue` (`id`),
-  CONSTRAINT `events_ibfk_3` FOREIGN KEY (`cuisine_id`) REFERENCES `cuisines` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `payment` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `event_id` int DEFAULT NULL,
+  `payment_date` date DEFAULT NULL,
+  `payment_method` varchar(255) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_id` (`event_id`),
+  CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `events`
+-- Dumping data for table `payment`
 --
 
-LOCK TABLES `events` WRITE;
-/*!40000 ALTER TABLE `events` DISABLE KEYS */;
-INSERT INTO `events` VALUES (7,6,'test name','2025-12-10','Day (11 PM till 6 PM)',1,2000,20,100,3,'Paid'),(8,6,'test anme 2','2025-02-07','Night (7 PM till 2 AM)',2,150,20,8,6,'Pending Approval'),(9,6,'test name 3 ','2025-02-07','Night (7 PM till 2 AM)',6,350,5,70,10,NULL);
-/*!40000 ALTER TABLE `events` ENABLE KEYS */;
+LOCK TABLES `payment` WRITE;
+/*!40000 ALTER TABLE `payment` DISABLE KEYS */;
+INSERT INTO `payment` VALUES (3,7,'2025-01-28','Cash',45200.00);
+/*!40000 ALTER TABLE `payment` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
