@@ -184,47 +184,6 @@ app.get('/fetch-services', (req, res) => {
 
 
 
-// app.post('/book-event', async (req, res) => {
-    // const {
-    //   user_id,
-    //   event_title,
-    //   event_date,
-    //   duration,
-    //   venue_id,
-    //   attendance_number,
-    //   persons_per_table,
-    //   number_of_tables,
-    //   cuisine_id,
-    //   services
-    // } = req.body;
-  
-//     try {
-//       await db.promise().beginTransaction();
-//         const [eventResult] = await db.promise().query(
-//         `INSERT INTO events (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id) 
-//          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-//         [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id]
-//       );
-  
-//       const event_id = eventResult.insertId;
-  
-//       const serviceInsertPromises = services.map((service_id) => {
-//         return db.promise().query(
-//           `INSERT INTO eventservices (event_id, service_id) VALUES (?, ?)`,
-//           [event_id, service_id]
-//         );
-//       });
-//         await Promise.all(serviceInsertPromises);
-//         await db.promise().commit();
-  
-//       res.status(200).json({ message: 'Event booked successfully', event_id });
-//     } catch (error) {
-//       await db.promise().rollback();
-//       console.error("Error booking event:", error);
-//       res.status(500).json({ error: 'Failed to book event' });
-//     }
-//   });
-
 app.post('/book-event', async (req, res) => {
     const {
         user_id, 
@@ -242,16 +201,16 @@ app.post('/book-event', async (req, res) => {
     console.log("Received data:", req.body);
 
     const eventQuery = `INSERT INTO events
-    (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, status) 
+    // VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    db.query(eventQuery, [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id], (err, results) => {
+    db.query(eventQuery, [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, 'Pending Approval'], (err, results) => {
         if (err) {
             console.error("Error booking event:", err);
             return res.status(500).send({ error: "Database query failed." });
         }
 
-        const newEventId = results.insertId; // Get the ID of the newly inserted event
+        const newEventId = results.insertId; 
 
         if (selectedServices && selectedServices.length > 0) {
             const serviceQuery = 'INSERT INTO eventservices (event_id, service_id) VALUES ?';
@@ -263,87 +222,33 @@ app.post('/book-event', async (req, res) => {
                     return res.status(500).send({ error: "Service insertion failed." });
                 }
 
-                // Success response after services are inserted
                 res.status(200).send({ message: "Event booked successfully with services!" });
             });
         } else {
-            // Success response if no services are provided
             res.status(200).send({ message: "Event booked successfully without services!" });
         }
     });
 });
 
-app.post('/feedback',async(req,res)=>{
-    const{
-        user_id,
-        feedback,
-        rating,
-        services,
-        suggestions
-    }=req.body;
 
-    console.log("Received data:".req.body)
 
-    if(!user_id || !feedback || !rating || !services){
-        return res.status(400).send({
-            error:"All fields are required."
-        });
+app.post('/feedback', async (req, res) => {
+    const { user_id, feedback, rating, services, suggestions } = req.body;
+
+
+    if (!user_id || !feedback || !rating || !services) {
+        return res.status(400).send({ error: "All fields are required." });
     }
-  
-    try {
-      await db.promise().beginTransaction();
-        const [eventResult] = await db.promise().query(
-        `INSERT INTO events (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, status) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, 'Pending Approval']
-      );
-  
-      const event_id = eventResult.insertId;
-  
-      const serviceInsertPromises = services.map((service_id) => {
-        return db.promise().query(
-          `INSERT INTO eventservices (event_id, service_id) VALUES (?, ?)`,
-          [event_id, service_id]
-        );
-      });
-        await Promise.all(serviceInsertPromises);
-        await db.promise().commit();
-  
-      res.status(200).json({ message: 'Event booked successfully', event_id });
-    } catch (error) {
-      await db.promise().rollback();
-      console.error("Error booking event:", error);
-      res.status(500).json({ error: 'Failed to book event' });
-    }
-  });
 
+    const query = 'INSERT INTO feedback (user_id, feedback, rating, services, suggestions) VALUES (?, ?, ?, ?, ?)';
 
-  app.post('/feedback',async(req,res)=>{
-    const{
-        user_id,
-        feedback,
-        rating,
-        services,
-        suggestions
-    }=req.body;
-
-    console.log("Received data:".req.body)
-
-    if(!user_id || !feedback || !rating || !services){
-        return res.status(400).send({
-            error:"All fields are required."
-        });
-    }
-    const query='INSERT INTO feedback (user_id, feedback,rating,services,suggestions) VALUES (?,?,?,?,?)';
-
-    db.query(query, [user_id,feedback,rating,services,suggestions],(err,results)=>{
-        if(err){
-            console.error("Error inserting feedback:",err);
-            return res.status(500).send({error:"Database query failed."});
+    db.query(query, [user_id, feedback, rating, services, suggestions], (err, results) => {
+        if (err) {
+            console.error("Error inserting feedback:", err);
+            return res.status(500).send({ error: "Database query failed." });
         }
-        res.status(200).send({message:"Feedback submitted successfully!"});
+        res.status(200).send({ message: "Feedback submitted successfully!" });
     });
-                 
 });
 
 
@@ -382,3 +287,127 @@ app.get('/get-events', (req, res) => {
         res.status(200).json(results);
     });
 });
+
+
+
+app.get('/fetch-payment', async (req, res) => {
+    const { id } = req.query; 
+
+    if (!id) {
+        return res.status(400).send({ error: "Event ID is required." });
+    }
+
+    try {
+        const query = `
+            SELECT 
+                e.event_id,
+                v.name AS venue_name,
+                CAST(v.price AS DECIMAL(10, 2)) AS venue_price,
+                c.cuisine AS cuisine_name,
+                (CAST(c.price AS DECIMAL(10, 2)) * e.attendance_number) AS cuisine_price,
+                e.number_of_tables,
+                (e.number_of_tables * 20) AS tables_cost,
+                s.service_name,
+                CAST(s.price AS DECIMAL(10, 2)) AS service_price
+            FROM events e
+            LEFT JOIN venue v ON e.venue_id = v.id
+            LEFT JOIN cuisines c ON e.cuisine_id = c.id
+            LEFT JOIN eventservices es ON e.event_id = es.event_id
+            LEFT JOIN services s ON es.service_id = s.id
+            WHERE e.event_id = ?
+        `;
+
+        db.query(query, [id], (err, results) => {
+            if (err) {
+                console.error("Error fetching event data:", err);
+                return res.status(500).send({ error: "Database query failed." });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).send({ error: "Event not found." });
+            }
+
+            const eventDetails = {
+                event_id: results[0].event_id,
+                venue: {
+                    name: results[0].venue_name,
+                    price: Number(results[0].venue_price),  
+                },
+                cuisine: {
+                    name: results[0].cuisine_name,
+                    price: Number(results[0].cuisine_price),  
+                },
+                tables: {
+                    number: results[0].number_of_tables,
+                    cost: Number(results[0].tables_cost), 
+                },
+                services: [],
+                total_cost: 0,
+            };
+
+            let servicesCost = 0;
+
+            results.forEach((row) => {
+                if (row.service_name) {
+                    eventDetails.services.push({
+                        name: row.service_name,
+                        price: Number(row.service_price),  
+                    });
+                    servicesCost += Number(row.service_price);  
+                }
+            });
+
+            eventDetails.total_cost =
+                eventDetails.venue.price +
+                eventDetails.cuisine.price +
+                eventDetails.tables.cost +
+                servicesCost;  
+
+
+            res.status(200).send(eventDetails);
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send({ error: "Internal server error." });
+    }
+});
+
+
+
+
+app.post('/new-payment', (req, res) => {
+    const { invoiceData, paymentMethod } = req.body; 
+    if (!paymentMethod || !invoiceData) {
+        return res.status(400).send({ error: 'Payment method and invoice data are required.' });
+    }
+
+    const paymentQuery = `
+        INSERT INTO payment (event_id, payment_date, payment_method, amount) 
+        VALUES (?, ?, ?, ?)
+    `;
+    db.query(paymentQuery, [
+        invoiceData.event_id, 
+        new Date(), 
+        paymentMethod, 
+        invoiceData.total_cost
+    ], (err, result) => {
+        if (err) {
+            console.error('Error inserting payment into database:', err);
+            return res.status(500).send({ error: 'Error processing payment.' });
+        }
+
+        const updateStatusQuery = `
+            UPDATE events 
+            SET status = 'Paid' 
+            WHERE event_id = ?
+        `;
+        db.query(updateStatusQuery, [invoiceData.event_id], (updateErr, updateRes) => {
+            if (updateErr) {
+                console.error('Error updating event status:', updateErr);
+                return res.status(500).send({ error: 'Error updating event status.' });
+            }
+            res.status(200).send({ message: 'Payment processed successfully, and event status updated.' });
+        });
+    });
+});
+
