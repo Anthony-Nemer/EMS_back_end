@@ -12,7 +12,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: 'localhost', 
   user: 'root',      
-  password: 'nemeranthony2004@',      
+  password: 'jennyfakir@2004',      
   database: 'ems_db' 
 });
 
@@ -157,7 +157,7 @@ app.get('/fetch-cuisines', (req, res) => {
 
 
 app.get('/fetch-venues', (req, res) => {
-    const query = `SELECT id, name, capacity, price FROM venue WHERE isAvailable = '1'`;
+    const query = `SELECT id, name,address, capacity,photo,isAvailable,price FROM venue WHERE isAvailable = '1'`;
 
     db.query(query, [], (err, results) => {
         if (err) {
@@ -411,3 +411,25 @@ app.post('/new-payment', (req, res) => {
     });
 });
 
+
+  
+app.post('/new-venue', async (req, res) => {
+    const { name, address, capacity, photo, isAvailable, price } = req.body;
+
+    console.log("Received data:", req.body);
+
+    
+    if (!name || !address || !capacity || !photo || !price) {
+        return res.status(400).json({ error: "All fields are required." });
+    }
+
+    const query = 'INSERT INTO venue (name, address, capacity, photo, isAvailable, price) VALUES (?, ?, ?, ?, ?, ?)';
+
+    db.query(query, [name, address, capacity, photo, isAvailable ?? true, price], (err, results) => {
+        if (err) {
+            console.error("Database Insertion Error:", err);
+            return res.status(500).json({ error: "Database query failed." });
+        }
+        res.status(201).json({ message: "Venue added successfully!", id: results.insertId });
+    });
+});
