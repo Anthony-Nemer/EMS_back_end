@@ -433,3 +433,22 @@ app.post('/new-venue', async (req, res) => {
         res.status(201).json({ message: "Venue added successfully!", id: results.insertId });
     });
 });
+
+
+
+  
+app.post('/new-cuisine', async (req, res) => {
+    const { cuisine, price } = req.body;
+
+    console.log("Received data:", req.body);
+
+    const query = 'INSERT INTO cuisines (cuisine,price) VALUES (?, ?)';
+
+    db.query(query, [cuisine,price], (err, results) => {
+        if (err) {
+            console.error("Database Insertion Error:", err);
+            return res.status(500).json({ error: "Database query failed." });
+        }
+        res.status(201).json({ message: "Cuisine added successfully!", id: results.insertId });
+    });
+});
