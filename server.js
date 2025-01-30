@@ -452,3 +452,33 @@ app.post('/new-cuisine', async (req, res) => {
         res.status(201).json({ message: "Cuisine added successfully!", id: results.insertId });
     });
 });
+
+app.get('/fetch-events',(req,res)=>{
+    const query='SELECT * FROM events WHERE status="Pending Approval" ';
+
+    db.query(query,(err,results)=>{
+        if(err){
+            console.error("Error fetching events:", err);
+            res.status(500).send({error:"Database query failed."});
+        }else{
+            res.status(200).json(results);
+        }
+    });
+});
+
+app.put('event-status', async (req, res) => {
+    const { event_id, status } = req.body;
+
+    if (!['accepted', 'denied'].includes(status)) {
+        return res.status(400).send({ error: "Invalid status update." });
+    }
+
+    const query = 'UPDATE events SET status = ? WHERE event_id = ?';
+    db.query(query, [status, event_id], (err, result) => {
+        if (err) {
+            console.error("Error updating event status:", err);
+            return res.status(500).send({ error: "Database update failed." });
+        }
+        res.status(200).send({ message: `Event ${status} successfully!` });
+    });
+});
