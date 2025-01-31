@@ -466,7 +466,7 @@ app.get('/fetch-events',(req,res)=>{
     });
 });
 
-app.put('event-status', async (req, res) => {
+app.put('/event-status', async (req, res) => {  
     const { event_id, status } = req.body;
 
     if (!['accepted', 'denied'].includes(status)) {
@@ -480,5 +480,23 @@ app.put('event-status', async (req, res) => {
             return res.status(500).send({ error: "Database update failed." });
         }
         res.status(200).send({ message: `Event ${status} successfully!` });
+    });
+});
+
+
+app.get('/fetch-suppliers', (req, res) => {
+    const query = `
+        SELECT  u.fullname, u.email, u.mobilenumber, u.serviceId, s.service_name, s.price
+        FROM users u
+        JOIN services s ON u.serviceId = s.ID
+        WHERE u.isSupplier = 1
+    `;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error("Error fetching suppliers:", err);
+            return res.status(500).send({ error: "Database query failed." });
+        }
+        res.status(200).json(results);
     });
 });
