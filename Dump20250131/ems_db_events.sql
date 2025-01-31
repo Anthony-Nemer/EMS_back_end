@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: localhost    Database: ems_db
+-- Host: 127.0.0.1    Database: ems_db
 -- ------------------------------------------------------
--- Server version	8.0.40
+-- Server version	8.0.39
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -36,12 +36,12 @@ CREATE TABLE `events` (
   `status` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`event_id`),
   KEY `user_id` (`user_id`),
-  KEY `venue_id` (`venue_id`),
   KEY `cuisine_id` (`cuisine_id`),
+  KEY `events_ibfk_2` (`venue_id`),
   CONSTRAINT `events_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `events_ibfk_2` FOREIGN KEY (`venue_id`) REFERENCES `venue` (`id`),
+  CONSTRAINT `events_ibfk_2` FOREIGN KEY (`venue_id`) REFERENCES `venue` (`id`) ON DELETE CASCADE,
   CONSTRAINT `events_ibfk_3` FOREIGN KEY (`cuisine_id`) REFERENCES `cuisines` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,7 +50,7 @@ CREATE TABLE `events` (
 
 LOCK TABLES `events` WRITE;
 /*!40000 ALTER TABLE `events` DISABLE KEYS */;
-INSERT INTO `events` VALUES (7,6,'test name','2025-12-10','Day (11 PM till 6 PM)',1,2000,20,100,3,'Paid'),(8,6,'test anme 2','2025-02-07','Night (7 PM till 2 AM)',2,150,20,8,6,'Pending Approval'),(9,6,'test name 3 ','2025-02-07','Night (7 PM till 2 AM)',6,350,5,70,10,NULL);
+INSERT INTO `events` VALUES (9,6,'test name','2025-02-03','Day (11 PM till 6 PM)',1,2000,20,100,1,'Rejected'),(10,6,'test anme 2','2025-12-20','Night (7 PM till 2 AM)',1,80,20,4,1,'Paid'),(12,6,'test name 3','2025-12-20','Night (7 PM till 2 AM)',6,300,20,15,9,'Paid');
 /*!40000 ALTER TABLE `events` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -63,4 +63,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-28 13:00:09
+-- Dump completed on 2025-01-31 22:17:47

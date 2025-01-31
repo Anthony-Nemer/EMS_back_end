@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: localhost    Database: ems_db
+-- Host: 127.0.0.1    Database: ems_db
 -- ------------------------------------------------------
--- Server version	8.0.40
+-- Server version	8.0.39
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,28 +16,32 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `cuisines`
+-- Table structure for table `payment`
 --
 
-DROP TABLE IF EXISTS `cuisines`;
+DROP TABLE IF EXISTS `payment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `cuisines` (
+CREATE TABLE `payment` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `cuisine` varchar(255) NOT NULL,
-  `price` decimal(5,2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `event_id` int NOT NULL,
+  `payment_date` datetime DEFAULT CURRENT_TIMESTAMP,
+  `payment_method` varchar(50) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_payment_event` (`event_id`),
+  CONSTRAINT `fk_payment_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `cuisines`
+-- Dumping data for table `payment`
 --
 
-LOCK TABLES `cuisines` WRITE;
-/*!40000 ALTER TABLE `cuisines` DISABLE KEYS */;
-INSERT INTO `cuisines` VALUES (1,'Italian',20.50),(2,'Chinese',15.00),(3,'Indian',18.75),(4,'Mexican',12.00),(5,'French',25.00),(6,'Japanese',22.50),(7,'Mediterranean',19.00),(8,'Thai',16.50),(9,'Lebanese',17.00),(10,'American',14.00);
-/*!40000 ALTER TABLE `cuisines` ENABLE KEYS */;
+LOCK TABLES `payment` WRITE;
+/*!40000 ALTER TABLE `payment` DISABLE KEYS */;
+INSERT INTO `payment` VALUES (2,10,'2025-01-31 22:03:14','Credit Card',3720.00),(3,12,'2025-01-31 22:09:13','Cash',13100.00);
+/*!40000 ALTER TABLE `payment` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -49,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-28 13:00:09
+-- Dump completed on 2025-01-31 22:17:47

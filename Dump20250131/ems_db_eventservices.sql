@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: localhost    Database: ems_db
+-- Host: 127.0.0.1    Database: ems_db
 -- ------------------------------------------------------
--- Server version	8.0.40
+-- Server version	8.0.39
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,32 +16,30 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `payment`
+-- Table structure for table `eventservices`
 --
 
-DROP TABLE IF EXISTS `payment`;
+DROP TABLE IF EXISTS `eventservices`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `payment` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `event_id` int DEFAULT NULL,
-  `payment_date` date DEFAULT NULL,
-  `payment_method` varchar(255) DEFAULT NULL,
-  `amount` decimal(10,2) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `event_id` (`event_id`),
-  CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `eventservices` (
+  `event_id` int NOT NULL,
+  `service_id` int NOT NULL,
+  PRIMARY KEY (`event_id`,`service_id`),
+  KEY `service_id` (`service_id`),
+  CONSTRAINT `eventservices_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+  CONSTRAINT `eventservices_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `payment`
+-- Dumping data for table `eventservices`
 --
 
-LOCK TABLES `payment` WRITE;
-/*!40000 ALTER TABLE `payment` DISABLE KEYS */;
-INSERT INTO `payment` VALUES (3,7,'2025-01-28','Cash',45200.00);
-/*!40000 ALTER TABLE `payment` ENABLE KEYS */;
+LOCK TABLES `eventservices` WRITE;
+/*!40000 ALTER TABLE `eventservices` DISABLE KEYS */;
+INSERT INTO `eventservices` VALUES (12,1),(12,2),(12,3),(12,4),(12,5);
+/*!40000 ALTER TABLE `eventservices` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -53,4 +51,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-28 13:00:09
+-- Dump completed on 2025-01-31 22:17:47

@@ -12,7 +12,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: 'localhost', 
   user: 'root',      
-  password: 'jennyfakir@2004',      
+  password: 'nemeranthony2004@',      
   database: 'ems_db' 
 });
 
@@ -195,14 +195,18 @@ app.post('/book-event', async (req, res) => {
         persons_per_table,
         number_of_tables,
         cuisine_id,
-        selectedServices
+        services 
     } = req.body;
 
-    console.log("Received data:", req.body);
+    // console.log("Received data:", req.body);
+
+    if (!Array.isArray(services)) {
+        return res.status(400).send({ error: "Invalid services format. Expected an array." });
+    }
 
     const eventQuery = `INSERT INTO events
     (user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, status) 
-    // VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     db.query(eventQuery, [user_id, event_title, event_date, duration, venue_id, attendance_number, persons_per_table, number_of_tables, cuisine_id, 'Pending Approval'], (err, results) => {
         if (err) {
@@ -212,9 +216,9 @@ app.post('/book-event', async (req, res) => {
 
         const newEventId = results.insertId; 
 
-        if (selectedServices && selectedServices.length > 0) {
+        if (services.length > 0) {
             const serviceQuery = 'INSERT INTO eventservices (event_id, service_id) VALUES ?';
-            const servicesData = selectedServices.map(service => [newEventId, service]);
+            const servicesData = services.map(service => [newEventId, service]);
 
             db.query(serviceQuery, [servicesData], (err, serviceResults) => {
                 if (err) {
@@ -229,6 +233,7 @@ app.post('/book-event', async (req, res) => {
         }
     });
 });
+
 
 
 
@@ -257,27 +262,34 @@ app.get('/get-events', (req, res) => {
     const userId = req.query.userId;
 
     const query = `
-        SELECT 
-            e.event_id,
-            e.event_title,
-            e.event_date,
-            e.status,
-            e.duration,
-            e.venue_id,
-            v.name AS venue_name,
-            e.attendance_number,
-            e.persons_per_table,
-            e.number_of_tables,
-            e.cuisine_id,
-            c.cuisine AS cuisine_name
-        FROM 
-            events AS e
-        JOIN 
-            venue AS v ON v.id = e.venue_id
-        JOIN 
-            cuisines AS c ON c.id = e.cuisine_id
-        WHERE 
-            e.user_id = ?`;
+            SELECT 
+                e.event_id,
+                e.event_title,
+                e.event_date,
+                e.status,
+                e.duration,
+                e.venue_id,
+                v.name AS venue_name,
+                e.attendance_number,
+                e.persons_per_table,
+                e.number_of_tables,
+                e.cuisine_id,
+                c.cuisine AS cuisine_name
+            FROM 
+                events AS e
+            JOIN 
+                venue AS v ON v.id = e.venue_id
+            JOIN 
+                cuisines AS c ON c.id = e.cuisine_id
+            WHERE 
+                e.user_id = ?
+            ORDER BY 
+                CASE 
+                    WHEN e.status LIKE '%pending%' THEN 0 
+                    ELSE 1
+                END,
+                e.event_date ASC;  -- Secondary sorting by event_date (optional)
+            `;
 
     db.query(query, [userId], (err, results) => {
         if (err) {
@@ -454,7 +466,14 @@ app.post('/new-cuisine', async (req, res) => {
 });
 
 app.get('/fetch-events',(req,res)=>{
-    const query='SELECT * FROM events WHERE status="Pending Approval" ';
+    const query=`SELECT * 
+            FROM events 
+            ORDER BY 
+            CASE 
+                WHEN status LIKE '%pending%' THEN 0  
+                ELSE 1  
+            END,
+            event_date ASC`;
 
     db.query(query,(err,results)=>{
         if(err){
@@ -469,18 +488,33 @@ app.get('/fetch-events',(req,res)=>{
 app.put('/event-status', async (req, res) => {  
     const { event_id, status } = req.body;
 
+    // console.log('Event id: '+ event_id);
+    // console.log('Event status: '+ status);
+
     if (!['accepted', 'denied'].includes(status)) {
         return res.status(400).send({ error: "Invalid status update." });
     }
 
-    const query = 'UPDATE events SET status = ? WHERE event_id = ?';
-    db.query(query, [status, event_id], (err, result) => {
-        if (err) {
-            console.error("Error updating event status:", err);
-            return res.status(500).send({ error: "Database update failed." });
-        }
-        res.status(200).send({ message: `Event ${status} successfully!` });
-    });
+    if(status === 'accepted'){
+        const query = 'UPDATE events SET status = ? WHERE event_id = ?';
+        db.query(query, ['Payment Pending', event_id], (err, result) => {
+            if (err) {
+                console.error("Error updating event status:", err);
+                return res.status(500).send({ error: "Database update failed." });
+            }
+            res.status(200).send({ message: `Event ${status} successfully! Waiting for payment.` });
+        });
+    }
+    else if(status=== 'denied'){
+        const query = 'UPDATE events SET status = ? WHERE event_id = ?';
+        db.query(query, ['Rejected', event_id], (err, result) => {
+            if (err) {
+                console.error("Error updating event status:", err);
+                return res.status(500).send({ error: "Database update failed." });
+            }
+            res.status(200).send({ message: `Event ${status} successfully!` });
+        });
+    }
 });
 
 

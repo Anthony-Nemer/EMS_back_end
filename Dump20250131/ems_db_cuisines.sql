@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: localhost    Database: ems_db
+-- Host: 127.0.0.1    Database: ems_db
 -- ------------------------------------------------------
--- Server version	8.0.40
+-- Server version	8.0.39
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,30 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `eventservices`
+-- Table structure for table `cuisines`
 --
 
-DROP TABLE IF EXISTS `eventservices`;
+DROP TABLE IF EXISTS `cuisines`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `eventservices` (
-  `event_id` int NOT NULL,
-  `service_id` int NOT NULL,
-  PRIMARY KEY (`event_id`,`service_id`),
-  KEY `service_id` (`service_id`),
-  CONSTRAINT `eventservices_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
-  CONSTRAINT `eventservices_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `cuisines` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `cuisine` varchar(255) NOT NULL,
+  `price` decimal(5,2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `eventservices`
+-- Dumping data for table `cuisines`
 --
 
-LOCK TABLES `eventservices` WRITE;
-/*!40000 ALTER TABLE `eventservices` DISABLE KEYS */;
-INSERT INTO `eventservices` VALUES (7,1),(8,1),(7,2),(7,3),(8,4);
-/*!40000 ALTER TABLE `eventservices` ENABLE KEYS */;
+LOCK TABLES `cuisines` WRITE;
+/*!40000 ALTER TABLE `cuisines` DISABLE KEYS */;
+INSERT INTO `cuisines` VALUES (1,'Italian',20.50),(2,'Chinese',15.00),(3,'Indian',18.75),(4,'Mexican',12.00),(5,'French',25.00),(6,'Japanese',22.50),(7,'Mediterranean',19.00),(8,'Thai',16.50),(9,'Lebanese',17.00),(10,'American',14.00);
+/*!40000 ALTER TABLE `cuisines` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -51,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-28 13:00:08
+-- Dump completed on 2025-01-31 22:17:48
