@@ -12,7 +12,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: 'localhost', 
   user: 'root',      
-  password: 'nemeranthony2004@',      
+  password: 'jennyfakir@2004',      
   database: 'ems_db' 
 });
 
@@ -107,11 +107,16 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/register', async (req, res) => {
-    const { fullName, email, password, mobile, role, service, employeePin } = req.body;
+    const { fullName, email, password, mobile, role, cuisineId, employeePin } = req.body;
+
+    // console.log("Received Register Request:",req.body);
 
     const userQuery = `SELECT * FROM users WHERE email = ?`;
     db.query(userQuery, [email], async (err, result) => {
-        if (err) return res.status(500).send(err);
+        if (err) {
+            console.error("Database Error:", err);
+            return res.status(500).send({ message: "Internal Server Error" });
+        }
 
         if (result.length > 0) {
             return res.status(401).send({ message: 'Email Already Exists' });
@@ -119,27 +124,38 @@ app.post('/register', async (req, res) => {
 
         let isHost = 0;
         let isSupplier = 0;
-        let finalService = service;
+        let finalCuisineId = cuisineId; // Use cuisineId correctly
         let finalEmployeePin = employeePin;
-        if (role === 'supplier') isSupplier = 1, finalEmployeePin = null;
-        if (role === 'host') isHost = 1, finalService = null;;
+
+        if (role === 'supplier') {
+            isSupplier = 1;
+            finalEmployeePin = null;
+        } else if (role === 'host') {
+            isHost = 1;
+            finalCuisineId = null; // Ensure cuisineId is null for hosts
+        }
 
         bcrypt.hash(password, 12, (err, hashedPassword) => {
-            if (err) return res.status(500).send(err);
+            if (err) {
+                console.error("Hashing Error:", err);
+                return res.status(500).send({ message: "Error hashing password" });
+            }
 
-            const query = `INSERT INTO users (fullname, email, mobilenumber, password, isSupplier, ishost, ratings, serviceId, employee_pin) 
+            const query = `INSERT INTO users (fullname, email, mobilenumber, password, isSupplier, ishost, ratings, cuisineId, employee_pin) 
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-            db.query(query, [fullName, email, mobile, hashedPassword, isSupplier, isHost, null, service, employeePin], (err, results) => {
-                if (err) return res.status(500).send(err);
+            db.query(query, [fullName, email, mobile, hashedPassword, isSupplier, isHost, null, cuisineId, finalEmployeePin], (err, results) => {
+                if (err) {
+                    console.error("Insert Error:", err);
+                    // console.log("Inserted Cuisine ID:", cuisineId);
+                    return res.status(500).send({ message: "Error inserting user into database" });
+                }
 
-                const userInfo = { fullName, email, mobile, isSupplier, isHost, finalService, finalEmployeePin };
-                return res.status(200).send({ message: 'Register successful', userInfo });
+                return res.status(200).send({ message: 'Register successful', userId: results.insertId });
             });
         });
     });
 });
-
 
 app.get('/fetch-cuisines', (req, res) => {
     var query = `SELECT * FROM cuisines`;
