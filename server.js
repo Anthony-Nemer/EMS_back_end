@@ -550,3 +550,33 @@ app.get('/fetch-suppliers', (req, res) => {
         res.status(200).json(results);
     });
 });
+
+app.post('/restock-request', (req, res) => {
+    const { host_id, cuisine_id, items } = req.body;
+
+    const supplierQuery = `SELECT id FROM users WHERE isSupplier = 1 AND cuisineId = ?`;
+    db.query(supplierQuery, [cuisine_id], (err, suppliers) => {
+        if (err) {
+            console.error("Error finding suppliers:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+        
+        if (suppliers.length === 0) {
+            return res.status(404).send({ message: "No suppliers available for this cuisine" });
+        }
+
+        const restockRequests = suppliers.map(supplier => 
+            items.map(item => [host_id, supplier.id, cuisine_id, item.name, item.quantity])
+        ).flat();
+
+        const insertQuery = `INSERT INTO restock_requests (host_id, supplier_id, cuisine_id, item_name, quantity) VALUES ?`;
+
+        db.query(insertQuery, [restockRequests], (err, result) => {
+            if (err) {
+                console.error("Error inserting restock requests:", err);
+                return res.status(500).send({ error: "Database error" });
+            }
+            res.status(200).send({ message: "Restock requests sent successfully!" });
+        });
+    });
+});
