@@ -12,7 +12,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: 'localhost', 
   user: 'root',      
-  password: 'jennyfakir@2004',      
+  password: 'nemeranthony2004@',      
   database: 'ems_db' 
 });
 
@@ -566,7 +566,7 @@ app.post('/restock-request', (req, res) => {
         }
 
         const restockRequests = suppliers.map(supplier => 
-            items.map(item => [host_id, supplier.id, cuisine_id, item.name, item.quantity])
+            items.map(item => [host_id, null, cuisine_id, item.name, item.quantity])
         ).flat();
 
         const insertQuery = `INSERT INTO restock_requests (host_id, supplier_id, cuisine_id, item_name, quantity) VALUES ?`;
