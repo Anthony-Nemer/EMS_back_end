@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: localhost    Database: ems_db
+-- Host: 127.0.0.1    Database: ems_db
 -- ------------------------------------------------------
--- Server version	9.1.0
+-- Server version	8.0.39
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -29,7 +29,7 @@ CREATE TABLE `restock_requests` (
   `cuisine_id` int DEFAULT NULL,
   `item_name` varchar(255) DEFAULT NULL,
   `quantity` int DEFAULT NULL,
-  `status` enum('pending','approved','denied') DEFAULT 'pending',
+  `status` enum('pending','approved','denied','accepted') DEFAULT 'pending',
   PRIMARY KEY (`id`),
   KEY `host_id` (`host_id`),
   KEY `supplier_id` (`supplier_id`),
@@ -37,7 +37,7 @@ CREATE TABLE `restock_requests` (
   CONSTRAINT `restock_requests_ibfk_1` FOREIGN KEY (`host_id`) REFERENCES `users` (`id`),
   CONSTRAINT `restock_requests_ibfk_2` FOREIGN KEY (`supplier_id`) REFERENCES `users` (`id`),
   CONSTRAINT `restock_requests_ibfk_3` FOREIGN KEY (`cuisine_id`) REFERENCES `cuisines` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +46,7 @@ CREATE TABLE `restock_requests` (
 
 LOCK TABLES `restock_requests` WRITE;
 /*!40000 ALTER TABLE `restock_requests` DISABLE KEYS */;
-INSERT INTO `restock_requests` VALUES (1,9,27,3,'rice',50,'pending');
+INSERT INTO `restock_requests` VALUES (1,9,NULL,3,'rice',50,'pending'),(2,7,3,1,'Baguette',6,'accepted'),(12,7,NULL,1,'test 1',3,'pending'),(14,7,NULL,1,'test 2',3,'pending'),(16,7,NULL,1,'test 3',3,'pending'),(18,7,NULL,1,'test 4',3,'pending'),(20,7,NULL,1,'test 5',3,'pending'),(22,7,NULL,1,'test 6',3,'pending'),(24,7,NULL,1,'test 7',3,'pending'),(26,7,NULL,1,'test 8',3,'pending'),(28,7,NULL,1,'test 9',3,'pending'),(30,7,NULL,1,'test 11',3,'pending'),(31,7,NULL,1,'test 12',1,'pending'),(34,7,NULL,1,'test 13',3,'pending'),(35,7,NULL,1,'test 13',3,'pending');
 /*!40000 ALTER TABLE `restock_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -59,4 +59,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-02 19:17:28
+-- Dump completed on 2025-02-07  0:32:07
